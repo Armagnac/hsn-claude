@@ -23,13 +23,25 @@ ln -s ~/git/agent-skills/skills ~/.claude/skills
 
 | Skill | Purpose | When to Use |
 |-------|---------|------------|
-| **`/plan`** | Break large features into milestones and tasks, track progress in markdown, auto-execute with `/loop` | Starting a multi-day feature, complex refactors, want autonomous execution |
 | **`/ask`** | Read-only Q&A — answer questions about code, architecture, or anything else without modifying files | Understanding existing code before making changes, researching before a task |
+| **`/plan`** | Break large features into milestones and tasks, track progress in markdown, auto-execute with `/loop` | Starting a multi-day feature, complex refactors, want autonomous execution |
 | **`plan-execution`** (auto) | Auto-activates during plan work — executes tasks, marks progress, creates commits | Works alongside `/plan` and `/loop`; requires no explicit invocation |
 
 ---
 
 ## Quick Examples
+
+### `/ask` — Understand code before changing it
+
+```bash
+/ask How does the auth system work?
+# → Claude reads code, explains architecture without modifying anything
+
+/ask What files implement database queries?
+# → Research-only; no files touched
+
+/ask Read online about Karpathy's approach for knowledge management. How could we apply it in our repo?
+```
 
 ### `/plan` — Build a feature methodically
 
@@ -45,15 +57,6 @@ ln -s ~/git/agent-skills/skills ~/.claude/skills
 # → Run all remaining tasks autonomously while you take a break
 ```
 
-### `/ask` — Understand code before changing it
-
-```bash
-/ask How does the auth system work?
-# → Claude reads code, explains architecture without modifying anything
-
-/ask What files implement database queries?
-# → Research-only; no files touched
-```
 
 ### `plan-execution` — Automatic during `/plan` work
 
@@ -61,6 +64,20 @@ No invocation needed. Activates automatically when you:
 - Run `/plan next`
 - Say "continue the plan"
 - Reference a `plans/*.plan.md` file
+
+---
+
+## `/ask` Command
+
+Read-only Q&A mode — Claude answers questions without modifying any files. Useful for understanding code, architecture, or investigating before making changes.
+
+```bash
+/ask How does the auth system work?
+/ask What's the difference between X and Y?
+/ask Which files implement feature Z?
+```
+
+No files are modified. Use `/ask` for research and learning; use `/plan` when you're ready to implement.
 
 ---
 
@@ -239,20 +256,6 @@ See `plans/examples/` in this repo for annotated examples:
 | [`add-feature.plan.md`](./plans/examples/add-feature.plan.md) | 2 milestones, 2 tasks | Minimal structure for a simple UI feature |
 | [`api-refactor.plan.md`](./plans/examples/api-refactor.plan.md) | 3 milestones, 5 tasks | Dependency tracking, flowchart diagram, incremental migration |
 | [`auth-system.plan.md`](./plans/examples/auth-system.plan.md) | 4 milestones, 9 tasks | Full-stack feature with parallel milestone tracks |
-
----
-
-## `/ask` Command
-
-Read-only Q&A mode — Claude answers questions without modifying any files. Useful for understanding code, architecture, or investigating before making changes.
-
-```bash
-/ask How does the auth system work?
-/ask What's the difference between X and Y?
-/ask Which files implement feature Z?
-```
-
-No files are modified. Use `/ask` for research and learning; use `/plan` when you're ready to implement.
 
 ---
 
