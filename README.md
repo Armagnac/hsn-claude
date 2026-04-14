@@ -1,6 +1,6 @@
-# HSN Claude Configuration
+# Agent Skills
 
-Claude Code configuration — `/plan` command, `/ask` command, and plan execution skill.
+Claude Code configuration and agentic development skills: structured planning (`/plan`), read-only Q&A (`/ask`), and autonomous plan execution (`plan-execution`).
 
 ## Installation
 
@@ -8,7 +8,7 @@ Claude Code configuration — `/plan` command, `/ask` command, and plan executio
 npx skills add Armagnac/agent-skills -g
 ```
 
-That's it. The `npx skills` CLI installs all three skills (`/plan`, `/ask`, `plan-execution`) into `~/.claude/skills/` globally.
+That's it. The `npx skills` CLI installs all three skills into `~/.claude/skills/` globally.
 
 **Alternative: symlink from a local clone**
 
@@ -19,11 +19,56 @@ ln -s ~/git/agent-skills/skills ~/.claude/skills
 
 ---
 
-## `/plan` — Structured Agentic Development
+## Skills Overview
 
-`/plan` breaks large features into milestones and tasks, tracks progress in a markdown file, and executes each task with acceptance criteria and an automatic commit. Pair it with `/loop` and Claude works through an entire feature autonomously while you do something else.
+| Skill | Purpose | When to Use |
+|-------|---------|------------|
+| **`/plan`** | Break large features into milestones and tasks, track progress in markdown, auto-execute with `/loop` | Starting a multi-day feature, complex refactors, want autonomous execution |
+| **`/ask`** | Read-only Q&A — answer questions about code, architecture, or anything else without modifying files | Understanding existing code before making changes, researching before a task |
+| **`plan-execution`** (auto) | Auto-activates during plan work — executes tasks, marks progress, creates commits | Works alongside `/plan` and `/loop`; requires no explicit invocation |
 
-### Commands
+---
+
+## Quick Examples
+
+### `/plan` — Build a feature methodically
+
+```bash
+/plan Add JWT authentication
+# → Claude researches codebase, breaks it into milestones and tasks
+# → Writes plans/jwt-auth.plan.md with files, specs, acceptance criteria
+
+/plan next
+# → Execute task 1.1, verify, commit, mark done
+
+/loop /plan next --yes plans/jwt-auth.plan.md
+# → Run all remaining tasks autonomously while you take a break
+```
+
+### `/ask` — Understand code before changing it
+
+```bash
+/ask How does the auth system work?
+# → Claude reads code, explains architecture without modifying anything
+
+/ask What files implement database queries?
+# → Research-only; no files touched
+```
+
+### `plan-execution` — Automatic during `/plan` work
+
+No invocation needed. Activates automatically when you:
+- Run `/plan next`
+- Say "continue the plan"
+- Reference a `plans/*.plan.md` file
+
+---
+
+## `/plan` in Detail
+
+`/plan` breaks large features into **milestones** (product deliverables) and **tasks** (developer work items), tracks progress in a markdown file, and executes each task with acceptance criteria.
+
+### Subcommands
 
 | Command | What it does |
 |---------|-------------|
@@ -31,33 +76,21 @@ ln -s ~/git/agent-skills/skills ~/.claude/skills
 | `/plan <TICKET-ID>` | Same, but fetches ticket details from Linear/GitHub/Jira first |
 | `/plan next` | Execute the next unchecked task (asks for confirmation) |
 | `/plan next --yes` | Execute the next task without confirmation |
-| `/plan next plans/foo.plan.md` | Target a specific plan file |
+| `/plan next <file>` | Target a specific plan file |
 | `/plan status` | Show progress across all active plans |
 | `/plan review` | Re-evaluate the plan against current code state |
 
-**Typical workflow:**
+### Structured vs. Unstructured Loops
 
-```bash
-/plan Add JWT authentication        # 1. Claude researches codebase, writes plans/jwt-auth.plan.md
-# Review and edit the plan file
-/plan next                          # 2. Execute task 1.1, commit, mark done
-/plan next                          # 3. Execute task 1.2, commit, mark done
-# ...or use /loop to run all tasks automatically (see below)
-```
+`/loop /plan next --yes` is a **structured autonomy pattern** — each loop executes a named task with explicit acceptance criteria and makes a git commit before advancing.
 
----
-
-### vs. Ralph Loop
-
-Ralph Wiggum is a popular Claude Code technique: a Stop hook blocks Claude's session exit and re-feeds the same prompt, looping until Claude outputs a completion string. It's zero-setup and works well for unbounded tasks.
-
-`/loop /plan next --yes` is a **structured Ralph loop** — same autonomous iteration, but each loop executes a named task with explicit acceptance criteria and makes a git commit before advancing.
+**Comparison with Ralph Loop:**
 
 | | Ralph Loop | `/loop /plan next --yes` |
 |--|--|--|
 | **Structure** | Unstructured — same prompt re-fed each iteration | Structured — next `[ ]` task with files, deps, acceptance criteria |
 | **Progress tracking** | None | `[x]` checkboxes + completion timestamps in plan file |
-| **Completion signal** | String match (e.g. `"DONE"`) or `--max-iterations` | "All tasks complete!" when no `[ ]` remain |
+| **Completion signal** | String match (e.g., `"DONE"`) or `--max-iterations` | "All tasks complete!" when no `[ ]` remain |
 | **Commits** | None | One commit per task: `Plan 2.1: <title>` |
 | **Dependency ordering** | None | Won't run a task until its deps are `[x]` |
 | **Resumability** | Restart from scratch if interrupted | Stop and resume anywhere — progress persists in the plan file |
@@ -65,13 +98,9 @@ Ralph Wiggum is a popular Claude Code technique: a Stop hook blocks Claude's ses
 
 **Bottom line:** Ralph wins on zero-setup for exploratory tasks. `/plan` + `/loop` wins on auditability, resumability, and correctness — you get a full git history and can always inspect exactly which task failed and why.
 
----
-
 ### Auto-executing with `/loop`
 
-#### Example 1: Run an entire plan unattended
-
-You've reviewed the plan and it looks good. Let Claude execute every task while you take a break.
+**Example 1: Run an entire plan unattended**
 
 ```bash
 /loop /plan next --yes plans/dark-mode.plan.md
@@ -83,9 +112,7 @@ What happens:
 3. Implements, commits `Plan 2.1: Add theme toggle to settings panel`
 4. No more tasks → prints "All tasks complete!" and the loop stops
 
-#### Example 2: Run only the first milestone, then review
-
-If you want a human checkpoint between milestones, just interrupt after milestone 1 completes and inspect before resuming.
+**Example 2: Run only the first milestone, then review**
 
 ```bash
 /loop /plan next --yes plans/jwt-auth.plan.md
@@ -96,16 +123,14 @@ If you want a human checkpoint between milestones, just interrupt after mileston
 
 Each task was committed separately, so `git log` shows clean progress and any milestone is easy to roll back.
 
-#### Example 3: Resume a plan that's already in-progress
-
-The plan is 40% done from a previous session. Pick up exactly where you left off:
+**Example 3: Resume a plan that's already in-progress**
 
 ```bash
 /plan status                        # see which tasks are done and what's next
 /loop /plan next --yes              # auto-detects the in-progress plan, resumes from first [ ]
 ```
 
-Claude re-reads the full plan on each iteration — completed tasks give it context about what was already built, future tasks show what constraints to keep in mind.
+Claude re-reads the full plan on each iteration — completed tasks give context about what was already built, future tasks show what constraints to keep in mind.
 
 ### Safety
 
@@ -224,4 +249,13 @@ Read-only Q&A mode — Claude answers questions without modifying any files. Use
 ```bash
 /ask How does the auth system work?
 /ask What's the difference between X and Y?
+/ask Which files implement feature Z?
 ```
+
+No files are modified. Use `/ask` for research and learning; use `/plan` when you're ready to implement.
+
+---
+
+## License
+
+MIT

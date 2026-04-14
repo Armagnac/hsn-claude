@@ -1,7 +1,16 @@
 ---
 name: plan-execution
 description: Auto-activates when working with implementation plans. Triggers on "continue the plan", "next task", "what's the plan status", "run task 2.1", or when user references plans/*.plan.md files. Not for creating plans - use /plan command for that.
+type: meta
+triggers:
+  - "continue the plan"
+  - "next task"
+  - "plan status"
+  - "run task"
+  - "mark task"
+  - "plans/*.plan.md"
 allowed-tools: Bash(git:*, ls:*), Read, Glob, Grep, Edit, Write, Agent, Task
+argument-hint: (auto-activating; no explicit arguments)
 ---
 
 # Plan Execution Skill

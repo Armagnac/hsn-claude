@@ -1,6 +1,14 @@
 ---
 name: ask
 description: Read-only Q&A mode — answers questions about the codebase, architecture, or any topic without modifying files. Use for research and exploration before making changes.
+type: meta
+triggers:
+  - "how does"
+  - "what is"
+  - "explain"
+  - "understand"
+  - "research"
+  - "investigate"
 allowed-tools: Read, Glob, Grep, Bash(git:*, ls:*), WebSearch, WebFetch, Agent
 argument-hint: <question>
 ---
