@@ -5,7 +5,7 @@ Claude Code configuration — `/plan` command, `/ask` command, and plan executio
 ## Installation
 
 ```bash
-npx skills add Armagnac/hsn-claude -g
+npx skills add Armagnac/agent-skills -g
 ```
 
 That's it. The `npx skills` CLI installs all three skills (`/plan`, `/ask`, `plan-execution`) into `~/.claude/skills/` globally.
@@ -13,7 +13,7 @@ That's it. The `npx skills` CLI installs all three skills (`/plan`, `/ask`, `pla
 **Alternative: symlink from a local clone**
 
 ```bash
-git clone https://github.com/Armagnac/hsn-claude ~/git/hsn-claude
+git clone https://github.com/Armagnac/agent-skills ~/git/hsn-claude
 ln -s ~/git/hsn-claude/skills ~/.claude/skills
 ```
 
