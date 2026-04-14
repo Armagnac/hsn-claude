@@ -1,6 +1,6 @@
 ---
 name: superplan
-description: Create and manage incremental implementation plans for large features. Supports /superplan and /sp commands. Subcommands: create (default), status, next, review.
+description: Create and manage incremental implementation plans for large features. Subcommands: create (default), status, next, review.
 type: meta
 triggers:
   - "create a plan"
