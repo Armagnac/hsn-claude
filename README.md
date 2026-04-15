@@ -1,6 +1,6 @@
 # Agent Skills
 
-Three Claude Code skills for building large features with structure and autonomy: persistent multi-milestone planning (`/superplan`), read-only research (`/ask`), and automatic task execution (`plan-execution`).
+Three Claude Code skills for shipping higher-quality code: structured planning that gives your coding agent one focused task at a time (`/superplan`), read-only research (`/ask`), and automatic task execution (`plan-execution`).
 
 ## Installation
 
@@ -21,25 +21,28 @@ ln -s ~/git/agent-skills/skills ~/.claude/skills
 
 ## Why Not Just Use Claude's Built-in Plan Mode?
 
-Claude Code's built-in plan mode shows you what Claude intends to do before executing — great for quick, single-session tasks. But for a multi-hour feature it breaks down:
+Built-in plan mode shows what Claude intends to do before executing — great for small, single-session tasks. But it hands the agent the entire feature in one shot, and **an agent working on a whole feature in one context window does worse work than an agent working on one small task at a time**.
 
-- The plan lives only in the current session — close the tab, lose the plan
-- No milestones or dependency ordering — one flat list of proposed changes
-- No acceptance criteria — no way to verify each step worked before moving on
-- No git trail — hard to audit what changed and why, or roll back a bad step
-- Can't run autonomously — you have to be present for every decision
+`/superplan` optimizes for code quality by mimicking how engineering teams actually ship:
 
-`/superplan` fixes all of this by writing the plan to a versioned markdown file in your repo.
+1. **Feature → Milestones** — each milestone is a deliverable product increment
+2. **Milestone → Tasks** — each task is ~30 min of work with specific files, acceptance criteria, and explicit dependencies
+3. **Agent implements one task per session** — clean context, narrow scope, full attention on just that task
+4. **Verify, commit, next** — each task is an atomic unit of progress
+
+Same reason a human dev writes better code when the ticket is small and well-scoped: focused attention beats broad effort. The agent isn't juggling "auth + routes + UI + migrations" while writing a validation helper — it's just writing the validation helper, with the exact acceptance criteria in front of it.
 
 | | Built-in Plan Mode | `/superplan` |
 |--|--|--|
-| **Persistence** | Session only — lost when tab closes | Saved to `plans/*.plan.md` in git |
-| **Structure** | Flat description of intended changes | Milestones → tasks with files, deps, acceptance criteria |
+| **Unit of work** | Whole feature in one session | One small task per session |
+| **Context at execution** | Full feature + every decision | Just the task, its files, acceptance criteria |
+| **Code quality** | Degrades as the session grows | Consistent — fresh context per task |
+| **Structure** | Flat description of intended changes | Milestones → tasks with deps + acceptance |
+| **Progress tracking** | None | `[x]` checkboxes + git commits per task |
 | **Resumability** | Start over from scratch | Resume from first `[ ]` task |
-| **Progress tracking** | None | `[x]` checkboxes + completion timestamps |
-| **Git commits** | None | One per task: `Plan 2.1: <title>` |
 | **Autonomous execution** | No | `/loop /superplan next --yes` runs unattended |
-| **Best for** | Quick tasks, single-session changes | Multi-hour features, complex refactors, team visibility |
+
+Persistence, resumability, the git trail — those are downstream benefits. The real win is **what gets built**, not how it's tracked.
 
 ---
 
@@ -47,7 +50,7 @@ Claude Code's built-in plan mode shows you what Claude intends to do before exec
 
 | Skill | Purpose | When to Use |
 |-------|---------|------------|
-| **`/superplan`** (or `/sp`) | Break large features into milestones and tasks, track progress in markdown, auto-execute with `/loop` | Starting a multi-day feature, complex refactors, want autonomous execution |
+| **`/superplan`** (or `/sp`) | Break a feature into small focused tasks so the agent can nail one at a time — each with specific files, acceptance criteria, and its own commit | Any non-trivial feature or refactor where you want the agent to produce quality work instead of juggling everything at once |
 | **`/ask`** | Read-only Q&A — answer questions about code, architecture, or anything else without modifying files | Understanding existing code before making changes, researching before a task |
 | **`plan-execution`** (auto) | Auto-activates during plan work — executes tasks, marks progress, creates commits | Works alongside `/superplan` and `/loop`; requires no explicit invocation |
 
@@ -106,14 +109,14 @@ No files are modified. Use `/ask` for research and learning; use `/superplan` wh
 
 ## `/superplan` in Detail
 
-`/superplan` (shorthand `/sp`) breaks large features into **milestones** (product deliverables) and **tasks** (developer work items), tracks progress in a markdown file, and executes each task with acceptance criteria.
+`/superplan` (shorthand `/sp`) breaks a feature into **milestones** (product deliverables) and **tasks** (small developer work items), then hands the agent one task at a time with specific files, acceptance criteria, and dependencies.
 
-### Why This Works for Large Features
+### Why This Produces Better Code
 
-1. **Resumability** — Stop mid-task, come back weeks later, pick up exactly where you left off.
-2. **Parallelism** — Dependencies are explicit. Tasks with no deps can run concurrently across people or agents.
-3. **Auditability** — Every architectural decision is documented with the reasoning. Future maintainers understand *why*, not just *what*.
-4. **Incremental progress** — A 50-task feature becomes 50 small, testable units. Each one verifiable before the next starts.
+1. **Focused context per task** — The agent sees just the task it's working on, not "everything we're building." Narrow scope, full attention, fewer mistakes.
+2. **Acceptance criteria at execution time** — Each task ships with "how to verify this works" baked in. The agent doesn't guess whether it's done — it checks.
+3. **Small units are testable units** — A 50-task feature becomes 50 small, independently verifiable pieces. Bugs localize to one commit, not one mega-session.
+4. **Resumable and auditable** — Stop anytime, pick up later. Every architectural decision is documented with reasoning. Future maintainers understand *why*, not just *what*.
 
 ### Subcommands
 

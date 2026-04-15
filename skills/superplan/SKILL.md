@@ -1,7 +1,7 @@
 ---
 name: superplan
-description: "Break large features into milestones and tasks, track progress in git-committed markdown, and execute autonomously with /loop. Use when starting a multi-hour feature, complex refactor, or any task too large for a single session — especially when you want resumable progress, per-task commits, and dependency ordering."
-when_to_use: "create a plan, plan this feature, break this down, I need a structured approach, plan before implementing, superplan, /sp"
+description: "Produce higher-quality code by breaking a feature into small, focused tasks the coding agent can nail one at a time. Works like an engineering team: feature → milestones (product deliverables) → ~30-min tasks with specific files, acceptance criteria, and dependencies. Each task runs in a fresh context — narrow scope, full attention, one git commit per task. Use when starting any non-trivial feature, complex refactor, or whenever you want the agent focused on one small thing at a time instead of juggling an entire feature in one session. Supports /loop for autonomous execution."
+when_to_use: "create a plan, plan this feature, break this down, I want higher quality code, plan before implementing, ship this feature, superplan, /sp"
 allowed-tools: Bash(git:* ls:* cat:*) Read Glob Grep Edit Write Agent Task
 argument-hint: <description or ticket_id> | status | next <plan_file> | review <plan_file>
 ---
