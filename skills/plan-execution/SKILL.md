@@ -116,12 +116,19 @@ When implementing a task from the plan:
 - Modify only the **Files** listed (unless the task clearly requires additional files)
 - Follow existing codebase patterns and style guides
 
-### 3. Verify
+### 3. Verify (Acceptance Gate — mandatory)
 
-- Check against the task's **Acceptance** criteria
-- Run relevant tests
+Go through each bullet in the task's **Acceptance** criteria one by one and explicitly confirm it passes:
+- Run the exact commands or checks described
 - For UI changes: use browser automation, take screenshots
 - For backend changes: make API calls, check database
+
+**If any criterion fails:**
+1. Fix the issue and re-verify all criteria (retry 1)
+2. If still failing, fix again and re-verify (retry 2)
+3. After 2 retries still failing: **stop, do NOT mark `[x]`**, and report to the user exactly which criterion failed and what you observed. Do not guess further.
+
+Only proceed to the next step when **all** acceptance criteria pass.
 
 ### 4. Run Code Quality Checks
 
